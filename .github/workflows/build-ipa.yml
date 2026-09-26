@@ -8,10 +8,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Create icon automatically
+      - name: Create valid 1024 icon
         run: |
           mkdir -p assets
-          node -e "const fs=require('fs'); fs.mkdirSync('assets',{recursive:true}); fs.writeFileSync('assets/icon.png', Buffer.from('[STRIPPED 92 bytes]','base64'))"
+          node -e "require('fs').writeFileSync('assets/icon.png', Buffer.from('[STRIPPED 1100 bytes]','base64'))"
       - name: Install deps
         run: npm install
       - name: Prebuild iOS
