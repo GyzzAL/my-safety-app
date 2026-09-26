@@ -8,26 +8,33 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
       - name: Fix icon
         run: |
           mkdir -p assets
           curl -L -o assets/icon.png https://raw.githubusercontent.com/expo/expo/main/templates/expo-template-blank/assets/icon.png
+
       - name: Install dependencies
         run: npm install
+
       - name: Prebuild iOS
         run: npx expo prebuild --platform ios --clean
+
       - name: Build unsigned IPA
         run: |
           cd ios
           pod install
           SCHEME=$(xcodebuild -list -workspace *.xcworkspace | awk '/Schemes:/{f=1;next} f && NF{print $1; exit}')
-          echo "Building scheme $SCHEME"
+          echo "Building scheme: $SCHEME"
           xcodebuild -workspace *.xcworkspace -scheme "$SCHEME" -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" -destination generic/platform=iOS
           mkdir -p Payload
           cp -R build/Build/Products/Release-iphoneos/*.app Payload/
           mkdir -p../IPA
           zip -r../IPA/app.ipa Payload
-      - uses: actions/upload-artifact@v4
+          ls -lh../IPA/
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
         with:
           name: IPA
           path: IPA/app.ipa
