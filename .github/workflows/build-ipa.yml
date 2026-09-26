@@ -9,10 +9,12 @@ jobs:
         with:
           node-version: 20
 
-      - name: Create valid 1024 icon
+      - name: Fix icon - download valid one
         run: |
           mkdir -p assets
-          node -e "require('fs').writeFileSync('assets/icon.png', Buffer.from('[STRIPPED 1100 bytes]','base64'))"
+          rm -f assets/icon.png
+          curl -L -o assets/icon.png https://raw.githubusercontent.com/expo/expo/main/templates/expo-template-blank/assets/icon.png
+          ls -lh assets/icon.png
 
       - name: Install dependencies
         run: npm install
