@@ -11,7 +11,7 @@ jobs:
       - name: Create icon automatically
         run: |
           mkdir -p assets
-          echo "[STRIPPED 92 bytes]" | base64 --decode > assets/icon.png
+          python3 -c "import base64; open('assets/icon.png','wb').write(base64.b64decode('[STRIPPED 92 bytes]'))"
       - name: Install deps
         run: npm install
       - name: Prebuild iOS
