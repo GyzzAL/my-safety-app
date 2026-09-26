@@ -6,7 +6,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -23,11 +23,6 @@ jobs:
       - name: Prebuild iOS
         run: npx expo prebuild --platform ios --clean
 
-      - name: Set up Xcode environment
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: 'latest'
-
       - name: Install CocoaPods dependencies
         run: |
           cd ios
@@ -38,19 +33,12 @@ jobs:
           cd ios
           SCHEME=$(xcodebuild -list -workspace *.xcworkspace | awk '/Schemes:/{f=1;next} f && NF{print $1; exit}')
           echo "Building scheme: $SCHEME"
-          xcodebuild archive \
-            -workspace *.xcworkspace \
-            -scheme "$SCHEME" \
-            -configuration Release \
-            -archivePath build/my-safety-app.xcarchive \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
-          xcodebuild -exportArchive \
-            -archivePath build/my-safety-app.xcarchive \
-            -exportOptionsPlist exportOptions.plist \
-            -exportPath ../IPA
-          ls -lh ../IPA/
+          xcodebuild -workspace *.xcworkspace -scheme "$SCHEME" -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" -destination generic/platform=iOS
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/*.app Payload/
+          mkdir -p../IPA
+          zip -r../IPA/app.ipa Payload
+          ls -lh../IPA/
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
